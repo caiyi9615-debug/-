@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>小蔡同学文档工作室</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Microsoft YaHei", Arial, sans-serif;
+    }
+
+    body {
+      background: #f5f7fb;
+      color: #222;
+      line-height: 1.7;
+    }
+
+    header {
+      background: linear-gradient(135deg, #3b82f6, #1e40af);
+      color: white;
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 36px;
+      margin-bottom: 15px;
+    }
+
+    header p {
+      font-size: 18px;
+      max-width: 700px;
+      margin: 0 auto 25px;
+    }
+
+    .btn {
+      display: inline-block;
+      background: white;
+      color: #1e40af;
+      padding: 12px 28px;
+      border-radius: 30px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .container {
+      max-width: 1050px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 30px;
+      color: #1e3a8a;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+
+    .card h3 {
+      color: #2563eb;
+      margin-bottom: 10px;
+      font-size: 20px;
+    }
+
+    .card p {
+      font-size: 15px;
+      color: #555;
+    }
+
+    .about {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+
+    .price-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+
+    .price-table th,
+    .price-table td {
+      padding: 16px;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+    }
+
+    .price-table th {
+      background: #2563eb;
+      color: white;
+    }
+
+    .price-table td {
+      color: #444;
+    }
+
+    .notice {
+      margin-top: 20px;
+      background: #eff6ff;
+      padding: 20px;
+      border-left: 5px solid #2563eb;
+      border-radius: 10px;
+      color: #333;
+    }
+
+    .contact {
+      text-align: center;
+      background: white;
+      padding: 35px 20px;
+      border-radius: 16px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+
+    .contact p {
+      margin: 10px 0;
+      font-size: 17px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      color: #777;
+      font-size: 14px;
+    }
+
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 28px;
+      }
+
+      header p {
+        font-size: 16px;
+      }
+
+      .section-title {
+        font-size: 24px;
+      }
+
+      .price-table th,
+      .price-table td {
+        padding: 12px 8px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>小蔡同学文档工作室</h1>
+    <p>提供大学生PPT美化、Word排版、简历优化、学习计划网页制作等服务，价格学生友好，适合课程汇报、实验报告和期末复习使用。</p>
+    <a href="#contact" class="btn">立即咨询</a>
+  </header>
+
+  <div class="container">
+    <h2 class="section-title">我可以帮你做什么？</h2>
+
+    <div class="cards">
+      <div class="card">
+        <h3>PPT美化</h3>
+        <p>适合课程汇报、小组展示、工程伦理汇报、实习答辩等。可优化版式、配色、封面、目录和整体风格。</p>
+      </div>
+
+      <div class="card">
+        <h3>Word排版</h3>
+        <p>适合实验报告、课程论文、实习报告等。可调整标题、目录、页眉页脚、段落格式和整体排版。</p>
+      </div>
+
+      <div class="card">
+        <h3>简历优化</h3>
+        <p>适合找实习、参加社团、申请项目的同学。可优化表达、突出优势、调整格式，让简历更清楚。</p>
+      </div>
+
+      <div class="card">
+        <h3>学习计划网页</h3>
+        <p>可制作期末复习计划、每日打卡表、课程安排网页，适合高数、线代、电路、物理等科目复习。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2 class="section-title">关于我</h2>
+
+    <div class="about">
+      <p>
+        你好，我是小蔡，一名电气工程及其自动化专业的大学生。平时经常接触课程汇报、实验报告、PPT制作和学习计划整理，
+        对大学生常见的作业展示、文档排版和复习资料整理比较熟悉。
+      </p>
+      <br>
+      <p>
+        我希望通过这个小工作室，帮助同学们把原本杂乱的内容整理得更清楚、更美观、更适合展示。
+        如果你有PPT、Word、简历、学习计划网页等需求，可以联系我沟通。
+      </p>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2 class="section-title">服务价格参考</h2>
+
+    <table class="price-table">
+      <tr>
+        <th>服务项目</th>
+        <th>适用场景</th>
+        <th>参考价格</th>
+      </tr>
+      <tr>
+        <td>PPT基础美化</td>
+        <td>封面、配色、字体、简单排版</td>
+        <td>9.9元起</td>
+      </tr>
+      <tr>
+        <td>PPT整套美化</td>
+        <td>课程汇报、小组展示、答辩展示</td>
+        <td>29.9元起</td>
+      </tr>
+      <tr>
+        <td>Word简单排版</td>
+        <td>普通作业、实验报告、课程资料</td>
+        <td>6.9元起</td>
+      </tr>
+      <tr>
+        <td>Word正式排版</td>
+        <td>实习报告、课程论文、正式文档</td>
+        <td>12.9元起</td>
+      </tr>
+      <tr>
+        <td>简历基础优化</td>
+        <td>社团申请、实习申请、个人简历</td>
+        <td>9.9元起</td>
+      </tr>
+      <tr>
+        <td>学习计划网页</td>
+        <td>期末复习、每日打卡、课程安排</td>
+        <td>19.9元起</td>
+      </tr>
+      <tr>
+        <td>课程资料整理</td>
+        <td>公式整理、知识点整理、复习提纲</td>
+        <td>9.9元起</td>
+      </tr>
+    </table>
+
+    <div class="notice">
+      说明：目前为前期试运营阶段，价格以学生友好为主。以上价格仅为起步参考，具体会根据页数、难度、修改次数和截止时间确定。可以先沟通需求，再决定是否下单。
+    </div>
+  </div>
+
+  <div class="container">
+    <h2 class="section-title">为什么选择我？</h2>
+
+    <div class="cards">
+      <div class="card">
+        <h3>更懂学生需求</h3>
+        <p>我自己也是大学生，更清楚课程汇报、实验报告和期末复习中真正需要什么。</p>
+      </div>
+
+      <div class="card">
+        <h3>价格学生友好</h3>
+        <p>目前处于前期试运营阶段，主要面向学生群体，价格不会虚高，适合普通课程作业和小组汇报。</p>
+      </div>
+
+      <div class="card">
+        <h3>沟通方便</h3>
+        <p>可以先说明你的课程、老师要求、截止时间和想要的风格，再决定是否下单。</p>
+      </div>
+
+      <div class="card">
+        <h3>认真负责</h3>
+        <p>不接代考、作弊、论文造假等违规内容，只做合理的排版、美化、整理和展示优化。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" id="contact">
+    <h2 class="section-title">联系方式</h2>
+
+    <div class="contact">
+      <p>如果你有PPT、Word、简历或网页制作需求，可以联系我。</p>
+      <p><strong>微信：</strong>17781762502</p>
+      <p><strong>QQ：</strong>2241037918</p>
+      <p><strong>邮箱：</strong>2241037918@qq.com</p>
+      <p>添加时可以备注：PPT / Word / 简历 / 网页制作</p>
+    </div>
+  </div>
+
+  <footer>
+    © 2026 小蔡同学文档工作室｜PPT美化｜Word排版｜简历优化｜学习计划网页制作
+  </footer>
+
+</body>
+</html>
