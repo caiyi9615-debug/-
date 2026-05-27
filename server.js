@@ -43,6 +43,61 @@ app.post("/api/sync/push", async (req,res)=>{
     res.json({success:true});
   }catch(e){res.status(500).json({success:false,message:e.message||"上传失败"})}
 });
+
+const BILI_BVID = "BV1Uw411f7WM";
+
+function mapMimiLessonNoFromPage(pageNumber) {
+  // 这个合集 P1 是导学案/导学篇，不算正式课：
+  // 正式第1课 -> P2; 第2课 -> P3; ... 第18课 -> P19
+  if (pageNumber < 2 || pageNumber > 19) return null;
+  return pageNumber - 1;
+}
+
+app.get("/api/bili/pages", async (req, res) => {
+  try {
+    const url = `https://api.bilibili.com/x/web-interface/view?bvid=${BILI_BVID}`;
+    const r = await fetch(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0",
+        "Referer": `https://www.bilibili.com/video/${BILI_BVID}/`
+      }
+    });
+
+    const d = await r.json();
+
+    if (!r.ok || d.code !== 0) {
+      throw new Error(d.message || "B站接口返回异常");
+    }
+
+    const lessonDurations = {};
+    const lessonPages = {};
+
+    (d.data.pages || []).forEach(p => {
+      const lessonNo = mapMimiLessonNoFromPage(Number(p.page));
+      if (!lessonNo || lessonNo > 18) return;
+      lessonDurations[lessonNo] = Number(p.duration || 0);
+      lessonPages[lessonNo] = {
+        page: p.page,
+        part: p.part,
+        duration: p.duration
+      };
+    });
+
+    res.json({
+      success: true,
+      bvid: BILI_BVID,
+      lessonDurations,
+      lessonPages
+    });
+  } catch (e) {
+    res.status(500).json({
+      success: false,
+      message: e.message || "获取B站分P信息失败"
+    });
+  }
+});
+
+
 app.get("/",(req,res)=>res.sendFile(path.join(__dirname,"public","index.html")));
 app.get("*",(req,res)=>res.sendFile(path.join(__dirname,"public","index.html")));
 app.listen(PORT,()=>console.log("mimi study clean final running on "+PORT));
