@@ -166,20 +166,6 @@ function formatDuration(sec){
 function getLessonDurationText(lessonNo){
   return formatDuration(BILI_DURATIONS[lessonNo]);
 }
-
-function getTotalVideoSeconds(){
-  const vals = Object.values(BILI_DURATIONS || {}).map(Number).filter(Boolean);
-  if(vals.length) return vals.reduce((a,b)=>a+b,0);
-  return 0;
-}
-function updateTotalVideoText(){
-  const el = document.getElementById("totalVideoText");
-  if(!el) return;
-  const sec = getTotalVideoSeconds();
-  el.textContent = sec ? formatDuration(sec) : "读取中";
-}
-
-
 async function fetchRealDurations(){
   try{
     const r = await fetch("/api/bili/pages");
@@ -187,7 +173,6 @@ async function fetchRealDurations(){
     if(!r.ok || !d.success) throw new Error(d.message || "获取失败");
     BILI_DURATIONS = d.lessonDurations || {};
     render();
-    updateTotalVideoText();
   }catch(e){
     console.warn("B站真实时长获取失败：", e.message);
   }
@@ -286,7 +271,7 @@ function updateStats(){
  let done=0, watched=0;
  PLAN.forEach(d=>{const all=d.checks.every((_,i)=>data.checks[`${d.date}-${i}`]); if(all)watched+=d.minutes; d.checks.forEach((_,i)=>{if(data.checks[`${d.date}-${i}`])done++;});});
  const rate=total?Math.round(done/total*100):0, left=Math.max(0, PLAN.reduce((s,d)=>s+d.minutes,0)-watched);
- totalChecks.textContent=total; doneChecks.textContent=done; rateText.textContent=rate+"%"; progressLabel.textContent=rate+"%"; progressBar.style.width=rate+"%";updateTotalVideoText(); leftVideo.textContent=left+"分";
+ totalChecks.textContent=total; doneChecks.textContent=done; rateText.textContent=rate+"%"; progressLabel.textContent=rate+"%"; progressBar.style.width=rate+"%"; leftVideo.textContent=left+"分";
  const today=new Date().toISOString().slice(0,10), d=PLAN.find(x=>x.date===today);
  todayTip.textContent=d?`米米大王今天是${d.show}（${d.type}）：${d.chapter}。视频时长 ${d.minutes} 分钟。${d.task}`:"今天不在计划日期内，可以打卡下一个未完成任务。";
 }
@@ -323,6 +308,77 @@ function scheduleCloudPush(){if(!cloudSyncKey)return;clearTimeout(cloudSyncTimer
 
 render();
 setInterval(()=>{checkAutoVideoDone();updateStats();},60000);
+
+/* ===== 米米真实时长强制显示补丁 ===== */
+window.MIMI_BILI_DURATIONS = window.MIMI_BILI_DURATIONS || {};
+
+function mimiFormatDuration(sec){
+  sec = Number(sec || 0);
+  if(!sec) return "读取中";
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = Math.floor(sec % 60);
+  if(h) return `${h}小时${m}分${s}秒`;
+  return `${m}分${s}秒`;
+}
+
+function mimiGetLessonNoFromCard(card){
+  const text = card.textContent || "";
+  const m = text.match(/第\s*(\d+)\s*课|第(\d+)课/);
+  if(!m) return null;
+  return Number(m[1] || m[2]);
+}
+
+function mimiApplyDurationsToCards(){
+  document.querySelectorAll(".lesson-item").forEach(card => {
+    const no = mimiGetLessonNoFromCard(card);
+    if(!no) return;
+    let badge = card.querySelector(".real-duration");
+    if(!badge){
+      badge = document.createElement("div");
+      badge.className = "real-duration";
+      const target = card.querySelector(".lesson-name") || card.firstElementChild || card;
+      target.insertAdjacentElement("afterend", badge);
+    }
+    badge.textContent = "真实时长：" + mimiFormatDuration(window.MIMI_BILI_DURATIONS[no]);
+  });
+
+  const totalEl = document.getElementById("totalVideoText") || document.getElementById("totalVideo");
+  if(totalEl){
+    const vals = Object.values(window.MIMI_BILI_DURATIONS).map(Number).filter(Boolean);
+    totalEl.textContent = vals.length ? mimiFormatDuration(vals.reduce((a,b)=>a+b,0)) : "读取中";
+  }
+}
+
+async function mimiFetchRealDurations(){
+  try{
+    const r = await fetch("/api/bili/pages", { cache: "no-store" });
+    const d = await r.json();
+    if(!r.ok || !d.success) throw new Error(d.message || "获取失败");
+    window.MIMI_BILI_DURATIONS = d.lessonDurations || {};
+    mimiApplyDurationsToCards();
+  }catch(e){
+    console.warn("米米B站真实时长获取失败：", e.message);
+    mimiApplyDurationsToCards();
+  }
+}
+
+(function(){
+  const oldRender = window.render || (typeof render !== "undefined" ? render : null);
+  if(oldRender && !window.__mimiRenderWrapped){
+    window.__mimiRenderWrapped = true;
+    const wrapped = function(){
+      const result = oldRender.apply(this, arguments);
+      setTimeout(mimiApplyDurationsToCards, 50);
+      return result;
+    };
+    window.render = wrapped;
+    try { render = wrapped; } catch(e) {}
+  }
+  setTimeout(mimiFetchRealDurations, 200);
+  setInterval(mimiApplyDurationsToCards, 1000);
+})();
+
 </script>
 </body>
 </html>
