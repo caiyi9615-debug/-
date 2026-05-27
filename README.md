@@ -1,17 +1,30 @@
-# 米米大王专属运筹学16天复习网站
+# 米米大王运筹学复习网站 - Render Web Service 版
 
-## 本版本修复
+这个版本适合你在 Render 里选择 Web Service / Docker 部署。
 
-- 修复“定位到今天”
-- 恢复“导出打卡数据”
-- 修复“打印/导出PDF”
-- 删除数据保存栏
-- 保留本地自动保存、每日打卡、备注、明日香表情包
+## 仓库结构
 
-## Render 部署
+上传到 GitHub 后，仓库里应该是：
 
-1. 解压压缩包。
-2. 上传 `index.html` 到 GitHub。
-3. Render → New → Static Site。
-4. Build Command 留空或填 `echo no build needed`。
-5. Publish Directory 填 `.`。
+```text
+index.html
+Dockerfile
+README.md
+```
+
+## Render 设置
+
+1. Render 点击 New
+2. 选择 Web Service
+3. 连接 GitHub 仓库
+4. Environment / Runtime 选择 Docker
+5. Branch 选择 main
+6. Root Directory 留空
+7. 点击 Create Web Service
+
+Render 会自动读取 Dockerfile，然后用 Nginx 启动这个网页。
+
+## 注意
+
+这个网站是纯前端网页，打卡和备注会保存在当前浏览器本地。
+换手机会没有原来的本地数据，除非之后再接 Supabase 云同步。
