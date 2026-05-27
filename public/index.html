@@ -63,6 +63,19 @@ input:focus,textarea:focus{border-color:var(--orange);box-shadow:0 0 0 4px rgba(
 .lesson-btn{padding:8px 10px;font-size:13px;border-radius:12px}
 @media(max-width:900px){.lesson-item{grid-template-columns:1fr}.lesson-btn{width:100%}}
 
+
+.real-duration{
+  display:inline-block;
+  margin-top:4px;
+  padding:4px 8px;
+  border-radius:999px;
+  background:#fff7ed;
+  color:#9a3412;
+  border:1px solid rgba(251,146,60,.35);
+  font-size:12px;
+  font-weight:900;
+}
+
 </style>
 </head>
 <body>
@@ -71,7 +84,7 @@ input:focus,textarea:focus{border-color:var(--orange);box-shadow:0 0 0 4px rgba(
 <div>
 <h1>米米大王专属｜运筹学16天复习站</h1>
 <p>按网课1—18顺序学习，题目按章节集中刷。6月6、7、13、14休息，6月15—16写真题，6月17上午考试。慢慢来，米米大王一定能稳稳拿下。</p>
-<div class="chips"><span class="chip">总视频：526分钟</span><span class="chip">每天约3小时</span><span class="chip">支持换手机云同步</span><span class="chip">自动读取B站真实时长</span></div>
+<div class="chips"><span class="chip">总视频：526分钟</span><span class="chip">每天约3小时</span><span class="chip">支持换手机云同步</span></div>
 <div class="notice" id="mimiLove">米米大王今天也超棒！看完一点点，就离上岸更近一点点 ♡</div>
 </div>
 <div class="sticker-box">
@@ -153,6 +166,20 @@ function formatDuration(sec){
 function getLessonDurationText(lessonNo){
   return formatDuration(BILI_DURATIONS[lessonNo]);
 }
+
+function getTotalVideoSeconds(){
+  const vals = Object.values(BILI_DURATIONS || {}).map(Number).filter(Boolean);
+  if(vals.length) return vals.reduce((a,b)=>a+b,0);
+  return 0;
+}
+function updateTotalVideoText(){
+  const el = document.getElementById("totalVideoText");
+  if(!el) return;
+  const sec = getTotalVideoSeconds();
+  el.textContent = sec ? formatDuration(sec) : "读取中";
+}
+
+
 async function fetchRealDurations(){
   try{
     const r = await fetch("/api/bili/pages");
@@ -160,6 +187,7 @@ async function fetchRealDurations(){
     if(!r.ok || !d.success) throw new Error(d.message || "获取失败");
     BILI_DURATIONS = d.lessonDurations || {};
     render();
+    updateTotalVideoText();
   }catch(e){
     console.warn("B站真实时长获取失败：", e.message);
   }
@@ -175,8 +203,8 @@ function courseHtml(date){
     const started = data.videoStart[l.id] ? "已开始计时" : "未开始";
     return `<div class="lesson-item">
       <div>
-        <div class="lesson-name">第${l.no}课：${esc(l.title)}</div>
-        <div class="lesson-meta">B站P${l.biliP}｜${getLessonDurationText(l.no)}｜${started}｜达到约90%时长可自动打卡</div>
+        <div class="lesson-name">第${l.no}课：${esc(l.title)}</div><div class="real-duration">真实时长：${getLessonDurationText(l.no)}</div>
+        <div class="lesson-meta">${getLessonDurationText(l.no)}｜${started}｜达到约90%时长可自动打卡</div>
       </div>
       <span class="lesson-done ${done?"ok":""}">${done?"已看完":"未完成"}</span>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
@@ -258,7 +286,7 @@ function updateStats(){
  let done=0, watched=0;
  PLAN.forEach(d=>{const all=d.checks.every((_,i)=>data.checks[`${d.date}-${i}`]); if(all)watched+=d.minutes; d.checks.forEach((_,i)=>{if(data.checks[`${d.date}-${i}`])done++;});});
  const rate=total?Math.round(done/total*100):0, left=Math.max(0, PLAN.reduce((s,d)=>s+d.minutes,0)-watched);
- totalChecks.textContent=total; doneChecks.textContent=done; rateText.textContent=rate+"%"; progressLabel.textContent=rate+"%"; progressBar.style.width=rate+"%"; leftVideo.textContent=left+"分";
+ totalChecks.textContent=total; doneChecks.textContent=done; rateText.textContent=rate+"%"; progressLabel.textContent=rate+"%"; progressBar.style.width=rate+"%";updateTotalVideoText(); leftVideo.textContent=left+"分";
  const today=new Date().toISOString().slice(0,10), d=PLAN.find(x=>x.date===today);
  todayTip.textContent=d?`米米大王今天是${d.show}（${d.type}）：${d.chapter}。视频时长 ${d.minutes} 分钟。${d.task}`:"今天不在计划日期内，可以打卡下一个未完成任务。";
 }
