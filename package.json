@@ -1,6 +1,6 @@
 {
-  "name": "mimi-study-cloudsync-rest-site",
-  "version": "2.1.0",
+  "name": "mimi-study-clean-final",
+  "version": "3.0.0",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
