@@ -341,6 +341,16 @@
       .sticker-grid{grid-template-columns:repeat(3,1fr)}
     }
 
+  
+    .cloud-sync-panel{background:linear-gradient(135deg,#fffaf7,#fff1f2);border:1px solid rgba(251,146,60,.28)}
+    .cloud-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:12px}
+    .cloud-head h2{margin:0;color:#7f1d1d;font-size:18px}
+    .cloud-head p{margin:3px 0 0;color:var(--muted);font-size:13px}
+    .sync-badge{display:inline-flex;align-items:center;white-space:nowrap;border-radius:999px;padding:6px 10px;background:#ffedd5;color:#9a3412;font-size:12px;font-weight:900}
+    .cloud-row{display:grid;grid-template-columns:1.4fr auto auto auto;gap:10px;align-items:center}
+    .sync-tip{margin-top:10px;color:#9a3412;font-size:13px;background:#fff7ed;border:1px dashed rgba(251,146,60,.45);border-radius:14px;padding:9px 10px}
+    @media(max-width:900px){.cloud-head{display:block}.sync-badge{margin-top:8px}.cloud-row{grid-template-columns:1fr}}
+
   </style>
 </head>
 <body>
@@ -488,11 +498,85 @@ function updateMimiLove(){
 }
 
 
+
+let cloudSyncKey = localStorage.getItem("mimi_cloud_sync_key") || "";
+let cloudSyncTimer = null;
+function setCloudStatus(text, ok=false){
+  const el=document.getElementById("cloudStatus");
+  if(!el) return;
+  el.textContent=text;
+  el.style.background=ok?"#dcfce7":"#ffedd5";
+  el.style.color=ok?"#166534":"#9a3412";
+}
+function getCloudKey(){
+  const input=document.getElementById("syncKeyInput");
+  const v=input?input.value.trim():"";
+  if(v){cloudSyncKey=v;localStorage.setItem("mimi_cloud_sync_key",cloudSyncKey);}
+  return cloudSyncKey;
+}
+function initCloudInput(){
+  const input=document.getElementById("syncKeyInput");
+  if(input&&cloudSyncKey) input.value=cloudSyncKey;
+  if(cloudSyncKey) setCloudStatus("已启用同步码",true);
+}
+async function cloudLogin(){
+  const key=getCloudKey();
+  if(!key) return alert("请先输入一个同步码。");
+  setCloudStatus("同步码已保存",true);
+  await cloudPull(false);
+}
+async function cloudPull(showAlert=true){
+  const key=getCloudKey();
+  if(!key) return alert("请先输入同步码。");
+  try{
+    setCloudStatus("正在读取云端...");
+    const r=await fetch("/api/sync/pull",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({syncKey:key})});
+    const d=await r.json();
+    if(!r.ok||!d.success) throw new Error(d.message||"读取失败");
+    if(d.state){
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(d.state));
+      render();
+      initCloudInput();
+      setCloudStatus("云端数据已恢复",true);
+      if(showAlert) alert("已从云端恢复打卡数据。");
+    }else{
+      setCloudStatus("云端暂无数据");
+      if(showAlert) alert("云端还没有数据。旧手机请先点击“上传当前数据”。");
+    }
+  }catch(err){
+    setCloudStatus("同步失败");
+    alert("云同步失败："+err.message);
+  }
+}
+async function cloudPush(showAlert=true){
+  const key=getCloudKey();
+  if(!key) return alert("请先输入同步码。");
+  try{
+    setCloudStatus("正在上传云端...");
+    const r=await fetch("/api/sync/push",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({syncKey:key,state:load()})});
+    const d=await r.json();
+    if(!r.ok||!d.success) throw new Error(d.message||"上传失败");
+    setCloudStatus("已同步到云端",true);
+    if(showAlert) alert("已上传到云端。换手机后输入同一个同步码即可恢复。");
+  }catch(err){
+    setCloudStatus("同步失败");
+    if(showAlert) alert("云同步失败："+err.message);
+    console.error(err);
+  }
+}
+function scheduleCloudPush(){
+  if(!cloudSyncKey) return;
+  clearTimeout(cloudSyncTimer);
+  cloudSyncTimer=setTimeout(()=>cloudPush(false),900);
+}
+
+
 function load(){
   try{return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {checks:{},notes:{}}}catch(e){return {checks:{},notes:{}}}
 }
 function save(data){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  scheduleCloudPush();
 }
 
 function weekday(dateStr){
